@@ -1,9 +1,9 @@
 # brickerGlobals.py
 import upygame as upg
 import umachine as pok
-import framebuf
 import urandom as rand
 import sprites
+import sounds
 
 bricks = []
 ball = {}
@@ -35,7 +35,7 @@ def initBricker():
     for x in range(0,9):
         brick = {"x":(x*12)+1,"y":56,"w":10,"h":4, "img":sprites.BrickPurp, "hit":False}
         bricks.append(brick)
-    ball = {"x":5, "y":5, "w":4,"h":4,"ys":3,"xs":3}
+    ball = {"x":5, "y":5, "w":4,"h":4,"ys":2,"xs":3}
     paddle = {"x":5, "y":5, "w":14,"h":3,"xs":0}
     score = 0
     active = False
@@ -84,14 +84,14 @@ def collideT(rx, ry, ax, ay):
 ###########################
 
 
-def playBricker(screen, upg, eventtype):
+def playBricker(screen, upg, eventtype, audio):
     global life, paddle, active, ball, bricks, particles, score, game_over, win 
     if eventtype != upg.NOEVENT:
         if eventtype.type== upg.KEYDOWN:
             if eventtype.key == upg.K_RIGHT or eventtype.key == upg.BUT_A:
-                paddle["xs"] = 6
+                paddle["xs"] = 5
             if eventtype.key == upg.K_LEFT or eventtype.key == upg.BUT_B:
-                paddle["xs"] = -6
+                paddle["xs"] = -5
         if eventtype.type == upg.KEYUP:
             if eventtype.key == upg.BUT_C:
                 if active is False:
@@ -99,7 +99,7 @@ def playBricker(screen, upg, eventtype):
                     ball["xs"] = rand.getrandbits(2)-1
                     if ball["xs"] is 0:
                         ball["xs"] = -3
-                    ball["ys"] = -3
+                    ball["ys"] = -2
             if eventtype.key == upg.K_RIGHT or eventtype.key == upg.BUT_A:
                 paddle["xs"] = 0
             if eventtype.key == upg.K_LEFT or eventtype.key == upg.BUT_B:
@@ -112,10 +112,11 @@ def playBricker(screen, upg, eventtype):
             part = {"x": (ball["x"]+1), "y": ball["y"]}
             particles.append(part)
             bricks.remove(x)
+            audio.play_sfx(sounds.high, len(sounds.high), True)
             
             
     for x in list(particles):
-        x["y"] = x["y"] - 2
+        x["y"] = x["y"] - 1
         if collideT(x["x"], x["y"], paddle["x"], paddle["y"]):
             particles.remove(x)
             score = score + 10
@@ -124,20 +125,25 @@ def playBricker(screen, upg, eventtype):
     
     if collideP(ball["x"], ball["y"], paddle["x"], paddle["y"]):
         ball["ys"] = -ball["ys"]
+        audio.play_sfx(sounds.low, len(sounds.low), True)
         
     #Updating positions
     if ball["x"] > 106:
         ball["xs"] = -ball["xs"]
+        audio.play_sfx(sounds.mid, len(sounds.mid), True)
     if ball["x"] < 1:
         ball["xs"] = -ball["xs"]
+        audio.play_sfx(sounds.mid, len(sounds.mid), True)
     if ball["y"] > 84:
         ball["ys"] = -ball["ys"]
+        audio.play_sfx(sounds.mid, len(sounds.mid), True)
     if ball["y"] < 1:
         active = False
         if life > 0:
             score = score - 10
             life = life -1
         else:
+            audio.play_sfx(sounds.lost, len(sounds.lost), True)
             game_over = True
         
     if active is False:
@@ -159,6 +165,7 @@ def playBricker(screen, upg, eventtype):
     #Drawing
     if len(bricks) is 0:
         win = True
+        audio.play_sfx(sounds.success, len(sounds.success), True)
         
     for x in range(life):
         screen.blit(sprites.Ball, x*4, 1)

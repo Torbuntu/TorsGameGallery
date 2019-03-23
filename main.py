@@ -1,8 +1,8 @@
 import upygame as upg
 import umachine as pok
-import framebuf
 import urandom as rand
 import sprites
+import sounds
 import narwhalGlobals
 import toastGlobals
 import brickerGlobals
@@ -10,6 +10,12 @@ import brickerGlobals
 upg.display.init()
 screen = upg.display.set_mode() # full screen
 upg.display.set_palette_16bit([0,4124,0xd819,65535,0xf807,0xfe8c,0x07fe,])#default palette
+
+#initialize the audio mixer: 
+audio = upg.mixer.Sound() 
+audio.reset() 
+audio.play() 
+
 
 #default settings
 narwhalGlobals.title = True
@@ -34,10 +40,11 @@ while True:
         elif narwhalGlobals.gameover:
             narwhalGlobals.drawGameOver(screen, upg, eventtype)
         else:
-            narwhalGlobals.drawMain(screen, upg, eventtype)
+            narwhalGlobals.drawMain(screen, upg, eventtype, audio)
         
         if narwhalGlobals.quit:
             play = False
+            narwhalGlobals.quit = False
             #default settings
             narwhalGlobals.title = True
             narwhalGlobals.gameover = False
@@ -50,10 +57,11 @@ while True:
         if toastGlobals.wait:
             toastGlobals.drawIntro(screen, upg, eventtype)
         else:
-            toastGlobals.playAst(screen, upg, eventtype)
+            toastGlobals.playAst(screen, upg, eventtype, audio)
         
         if toastGlobals.quit:
             play = False
+            toastGlobals.quit = False
             upg.display.set_palette_16bit([0,4124,0xd819,65535,0xf807,0xfe8c,0x07fe,])
     
     #Game 3 is Inverted Bricker
@@ -69,10 +77,11 @@ while True:
         elif brickerGlobals.menu:
             brickerGlobals.drawMenu(screen, upg, eventtype)
         else:
-            brickerGlobals.playBricker(screen, upg, eventtype)
+            brickerGlobals.playBricker(screen, upg, eventtype, audio)
     
         if brickerGlobals.quit:
             play = False
+            brickerGlobals.quit = False
             upg.display.set_palette_16bit([0,4124,0xd819,65535,0xf807,0xfe8c,0x07fe,])
         
     
@@ -88,12 +97,40 @@ while True:
                     if gameSelect > 1:
                         gameSelect = gameSelect - 1
     if not play:
-        pok.draw_text(1,1,"Tor's Game Gallery", 3)
+        
         if gameSelect == 1:
-            pok.draw_text(1,12,"Press `C` to play:\n\nMecha Narwhal", 3)
+            upg.display.set_palette_16bit([0xffff,0x03bb,0xf017,65535,0x5acb,0x07e8,0x0000,0xf800])
+            screen.fill(1, upg.Rect(0,0,110,88)) 
+            
+            pok.draw_text(1,1,"Tor's Game Gallery", 6)
+            pok.draw_text(2,2,"Tor's Game Gallery", 3)
+            pok.draw_text(1,12,"Press `C` to play:\n\nMecha Narwhal", 6)
+            pok.draw_text(2,13,"Press `C` to play:\n\nMecha Narwhal", 3)
+            screen.blit(sprites.narwhal_sprites[3], 40,45)
+            screen.blit(sprites.enemies_sprites[0], 20,45)
+            screen.blit(sprites.enemies_sprites[1], 75,45)
+            
         if gameSelect == 2:
-            pok.draw_text(1,12,"Press `C` to play:\n\nAngry Space Toast", 3)
+            upg.display.set_palette_16bit([0,4124,0xd819,65535,0xf807,0xfe8c,0x07fe,])
+            pok.draw_text(2,2,"Tor's Game Gallery", 6)
+            pok.draw_text(2,13,"Press `C` to play:\n\nAngry Space Toast", 6)
+            screen.blit(sprites.asteroid, 45, 40)
+            screen.blit(sprites.asteroid, 45, 74)
+            screen.blit(sprites.asteroid, 24, 64)
+            screen.blit(sprites.asteroid, 68, 45)
+            screen.blit(sprites.introRocket, 50, 60)
+            screen.blit(sprites.introThrusters, 46, 62)
+            
+            
         if gameSelect == 3:
-            pok.draw_text(1,12,"Press `C` to play:\n\nInverted Bricker", 3)
+            upg.display.set_palette_16bit([0xffff,0x4248,0x02dd,0xf819,0x5acb,0x07e8,0x0000,0xf800])
+            screen.fill(1, upg.Rect(0,0,110,88)) 
+            screen.blit(sprites.Paddle, 35, 45)
+            screen.blit(sprites.Ball, 42, 50)
+            screen.blit(sprites.BrickPurp, 50, 74)
+            pok.draw_text(1,1,"Tor's Game Gallery", 6)
+            pok.draw_text(2,2,"Tor's Game Gallery", 7)
+            pok.draw_text(1,12,"Press `C` to play:\n\nInverted Bricker", 6)
+            pok.draw_text(2,13,"Press `C` to play:\n\nInverted Bricker", 7)
         
     upg.display.flip()# Do regardless

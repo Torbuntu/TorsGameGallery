@@ -1,8 +1,8 @@
 # Narwhal Globals file
 import umachine as pok
-import framebuf
 import urandom as rand
 import sprites
+import sounds
 
 narwhal_sprites = sprites.narwhal_sprites
 enemies_sprites = sprites.enemies_sprites
@@ -28,6 +28,7 @@ best = 0
 boost = 2
 boost_time = 0
 quit = False
+title = True
 
 seaGunkPart = []
 for i in range(0, 30):
@@ -86,6 +87,8 @@ def drawTitle(screen, upg, eventtype):
         if eventtype.type == upg.KEYDOWN:
             if eventtype.key == upg.BUT_B:
                 quit = True
+                title = False
+                gameover = False
             else:
                 title = False
                 gameover = False
@@ -103,12 +106,14 @@ def drawGameOver(screen, upg, eventtype):
         if eventtype.type == upg.KEYDOWN:
             if eventtype.key == upg.BUT_B:
                 quit = True
+                title = True
+                gameover = False
             else:
                 title = True
                 gameover = False
                 initNarwhal()
             
-def drawMain(screen, upg, eventtype):
+def drawMain(screen, upg, eventtype, audio):
     global title, gameover, boost, boost_time, index, position, time, speed, mult, current, cx, cy, cind, x, y, score, charge, dashing, best
     boost_time+=1
     score = score+ 1*mult
@@ -122,8 +127,10 @@ def drawMain(screen, upg, eventtype):
         if eventtype.type== upg.KEYDOWN:
             if eventtype.key == upg.K_UP:
                 position = 0
+                audio.play_sfx(sounds.low, len(sounds.low), True)
             if eventtype.key == upg.K_DOWN:
                 position = 2
+                audio.play_sfx(sounds.low, len(sounds.low), True)
             if eventtype.key == upg.K_RIGHT or eventtype.key == upg.BUT_A:
                 if charge > 0 and not dashing:
                     dashing = True
@@ -161,6 +168,7 @@ def drawMain(screen, upg, eventtype):
             charge = 0
             dashing = False
         else:
+            audio.play_sfx(sounds.mid, len(sounds.mid), True)
             charge -= 5
             mult = 2
             x = 19
@@ -199,6 +207,7 @@ def drawMain(screen, upg, eventtype):
             if cind["id"] > 3 and dashing:
                 print("Close call")   
             else:
+                audio.play_sfx(sounds.lost, len(sounds.lost), True)
                 gameover = True
                 if score > best:
                     best = score

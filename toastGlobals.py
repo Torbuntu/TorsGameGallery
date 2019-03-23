@@ -1,10 +1,10 @@
 # toastGlobals.py
 import upygame as upg
 import umachine as pok
-import framebuf
 import urandom as rand
 import asteroid as ast
 import sprites
+import sounds
 
 acc = False # Accelerating
 health = 25
@@ -74,12 +74,6 @@ def collide(rx, ry, ax, ay):
         shieldpercent -= 1
         if shieldpercent < 0:
             health -= 1
-            
-        if health < 0:
-            print("ded")
-            if best < score:
-                best = score
-            wait = True
         return True
     else:
         return False
@@ -189,8 +183,8 @@ def moveP(upg, eventtype):
 ###############
 
 
-def playAst(screen, upg, eventtype):
-    global score, asteroids, health, shieldpercent, acc, dustParts
+def playAst(screen, upg, eventtype, audio):
+    global score, asteroids, health, shieldpercent, acc, dustParts, wait, best
     #Score logic
     score += 1
     
@@ -221,6 +215,13 @@ def playAst(screen, upg, eventtype):
         pok.draw_text(1, 5, str(score), 2)
         for hlx in range(health):
             screen.blit(sprites.healthicon, hlx, 1)
+            
+    if health < 0:
+        print("ded")
+        audio.play_sfx(sounds.lost, len(sounds.lost), True)
+        if best < score:
+            best = score
+        wait = True
     ###############################
         
     # Draw rocket thrusters and dust particles
